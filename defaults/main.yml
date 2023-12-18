@@ -1,7 +1,11 @@
-ufw_enabled: yes
-ufw_ipv6_enabled: yes
+---
+
+ufw_enabled: true
+ufw_ipv6_enabled: true
 ufw_logging: 'off'
 ufw_packages:
   - ufw
 ufw_policy: deny
 ufw_rules: []
+
+...

@@ -5,49 +5,49 @@
     - include_tasks: setup-repository-{{ ansible_pkg_mgr }}.yml
 
     - name: Install UFW packages
-      package:
+      ansible.builtin.package:
         name: '{{ ufw_packages }}'
         state: present
-  become: yes
+  become: true
   tags: [ufw, packages]
 
 - name: Start UFW service
-  service:
+  ansible.builtin.service:
     name: ufw
-    enabled: yes
+    enabled: true
     state: started
-  become: yes
+  become: true
   tags: [ufw, services]
 
 - block:
     - name: Allow ssh
-      ufw:
+      ansible.builtin.ufw:
         port: '{{ ssh_port }}'
         proto: tcp
         rule: allow
       notify: reload ufw
 
     - name: Toggle IPv6
-      lineinfile:
+      ansible.builtin.lineinfile:
         dest: /etc/default/ufw
         line: "IPV6={{ ufw_ipv6_enabled|bool|ternary('yes', 'no') }}"
         regexp: ^IPV6
       notify: reload ufw
 
     - name: Configure UFW
-      ufw:
+      ansible.builtin.ufw:
         logging: '{{ ufw_logging }}'
         policy: '{{ ufw_policy }}'
         state: "{{ ufw_enabled|bool|ternary('enabled', 'disabled') }}"
       notify: reload ufw
-  become: yes
+  become: true
   tags: [ufw, rules]
 
 # http://docs.ansible.com/ansible/ufw_module.html
 # FIXME find a better way to pass parameters to module like python's kwargs?
 
 - name: Setup new rules
-  ufw:
+  ansible.builtin.ufw:
     # required
     rule: '{{ item.rule }}'
     # optional
@@ -65,7 +65,9 @@
     # aliases made available for retro-compatibility
     dest: '{{ item.dest|default(omit) }}'  # to_ip
     port: '{{ item.port|default(omit) }}'  # to_port
-  become: yes
+  become: true
   loop: '{{ ufw_rules }}'
   notify: reload ufw
   tags: [ufw, rules]
+
+...
